@@ -12,7 +12,7 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        int david = 0;
         /*
          * This will log whenever we reveice data from firestore. This is useful for debugging and to get a feeling
          * of how much and when new data is received from the database.

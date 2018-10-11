@@ -1,5 +1,7 @@
 package ch.beerpro.data.repositories;
 
+import android.util.Log;
+
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import ch.beerpro.domain.models.Beer;
@@ -29,7 +31,11 @@ public class BeersRepository {
     private final static Function<List<Beer>, List<String>> mapBeersToManufacturers = (List<Beer> beers) -> {
         Set<String> filtered = new HashSet<>();
         for (Beer beer : beers) {
-            filtered.add(beer.getManufacturer());
+            if(beer.getManufacturer()!=null) {
+                filtered.add(beer.getManufacturer());
+            }else{
+                Log.i("BEER Info",beer.toString());
+            }
         }
         String[] strings = filtered.toArray(new String[0]);
         Arrays.sort(strings);

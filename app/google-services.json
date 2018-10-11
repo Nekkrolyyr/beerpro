@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "498454539131-jqdkec969r0c86m5ltehv7g18sm9b6ri.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ch.beerpro",
+            "certificate_hash": "195b8bede54885f76ea1d31763bd60ad23f9e988"
+          }
+        },
+        {
           "client_id": "498454539131-idd49m70v9c2le87gicd1mj0pv2utovt.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498454539131-idd49m70v9c2le87gicd1mj0pv2utovt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

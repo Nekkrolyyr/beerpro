@@ -18,6 +18,7 @@ import ch.beerpro.R;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 import ch.beerpro.presentation.MainViewModel;
+import ch.beerpro.presentation.profile.myFridge.MyFridgeActivity;
 import ch.beerpro.presentation.profile.mybeers.MyBeersActivity;
 import ch.beerpro.domain.models.MyBeer;
 import ch.beerpro.presentation.profile.myratings.MyRatingsActivity;
@@ -104,6 +105,11 @@ public class ProfileFragment extends Fragment {
     @OnClick(R.id.myBeers)
     public void handleMyBeersClick(View view) {
         Intent intent = new Intent(getActivity(), MyBeersActivity.class);
+        startActivity(intent);
+    }
+    @OnClick(R.id.myFridge)
+    public void handleMyFridgeClick(View view) {
+        Intent intent = new Intent(getActivity(), MyFridgeActivity.class);
         startActivity(intent);
     }
 

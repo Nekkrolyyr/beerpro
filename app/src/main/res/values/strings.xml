@@ -102,5 +102,9 @@
     <string name="title_activity_wishlist">Wunschliste</string>
     <string name="title_activity_myratings">Meine Bewertungen</string>
     <string name="title_activity_mybeers">Meine Biere</string>
+    <string name="title_activity_myfridge">Kühlschrank</string>
     <string name="action_search">Bier suchen</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

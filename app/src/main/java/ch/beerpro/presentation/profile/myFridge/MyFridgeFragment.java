@@ -10,7 +10,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.recyclerview.widget.RecyclerView;
+import butterknife.BindView;
 import ch.beerpro.R;
+import ch.beerpro.presentation.profile.mybeers.MyBeersRecyclerViewAdapter;
+import ch.beerpro.presentation.profile.mybeers.OnMyBeerItemInteractionListener;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,16 +25,17 @@ import ch.beerpro.R;
  * create an instance of this fragment.
  */
 public class MyFridgeFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "MyFridgeFragment";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private OnMyFridgeItemInteractionListender interactionListener;
 
-    private OnFragmentInteractionListener mListener;
+    @BindView(R.id.recyclerView)
+    RecyclerView recyclerView;
+
+    @BindView(R.id.emptyView)
+    View emptyView;
+
+    private MyFridgeRecyclerViewAdapter adapter;
 
     public MyFridgeFragment() {
         // Required empty public constructor

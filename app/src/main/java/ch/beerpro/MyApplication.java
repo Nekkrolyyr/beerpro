@@ -12,9 +12,6 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        int david = 0;
-        String martin = "Gay";
-        int david2 = 1;
 
         /*
          * This will log whenever we reveice data from firestore. This is useful for debugging and to get a feeling

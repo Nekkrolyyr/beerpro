@@ -1,33 +1,31 @@
 package ch.beerpro.presentation.profile.myFridge;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import ch.beerpro.R;
-import ch.beerpro.presentation.profile.mybeers.MyBeersRecyclerViewAdapter;
-import ch.beerpro.presentation.profile.mybeers.OnMyBeerItemInteractionListener;
+import ch.beerpro.domain.models.MyBeer;
+import ch.beerpro.data.repositories.CurrentUser;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MyFridgeFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MyFridgeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MyFridgeFragment extends Fragment {
+
     private static final String TAG = "MyFridgeFragment";
 
-    private OnMyFridgeItemInteractionListender interactionListener;
+    private OnMyFridgeItemInteractionListener interactionListener;
+
+    private MyFridgeRecyclerViewAdapter adapter;
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
@@ -35,82 +33,50 @@ public class MyFridgeFragment extends Fragment {
     @BindView(R.id.emptyView)
     View emptyView;
 
-    private MyFridgeRecyclerViewAdapter adapter;
-
     public MyFridgeFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MyFridgeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MyFridgeFragment newInstance(String param1, String param2) {
-        MyFridgeFragment fragment = new MyFridgeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_searchresult_list, container, false);
+        ButterKnife.bind(this, view);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
+        recyclerView.setLayoutManager(layoutManager);
+
+        MyFridgeViewModel model = ViewModelProviders.of(getActivity()).get(MyFridgeViewModel.class);
+        model.getMyFilteredBeers().observe(getActivity(), this::handleBeersChanged);
+
+        adapter = new MyFridgeRecyclerViewAdapter(interactionListener, model.getCurrentUser());
+
+        recyclerView.setAdapter(adapter);
+        return view;
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_my_fridge, container, false);
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+    private void handleBeersChanged(List<MyBeer> beers) {
+        adapter.submitList(new ArrayList<>(beers));
+        if (beers.isEmpty()) {
+            emptyView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            emptyView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
         }
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof OnMyFridgeItemInteractionListener) {
+            interactionListener = (OnMyFridgeItemInteractionListener) context;
         } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+            throw new RuntimeException(context.toString() + " must implement OnItemSelectedListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        interactionListener = null;
     }
 }

@@ -1,5 +1,13 @@
 package ch.beerpro.presentation.profile.myFridge;
 
+import android.app.ActivityOptions;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.ImageView;
+import androidx.appcompat.widget.Toolbar;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.ViewModelProviders;
@@ -8,20 +16,19 @@ import butterknife.ButterKnife;
 import ch.beerpro.R;
 import ch.beerpro.domain.models.Beer;
 import ch.beerpro.presentation.details.DetailsActivity;
-import ch.beerpro.presentation.profile.mybeers.MyBeersViewModel;
 
-import android.app.ActivityOptions;
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.Toolbar;
+public class MyFridgeActivity extends AppCompatActivity implements OnMyFridgeItemInteractionListener{
 
-public class MyFridgeActivity extends AppCompatActivity implements OnMyFridgeItemInteractionListender{
+
+    /*
+    ToDo:
+        - Bier hinzufügen -> DetailsActivity sollte ein hinzufügen enthalten
+        - Repository von myFridge anpassen
+        - Suche hängt app auf
+     */
 
     @BindView(R.id.toolbar)
-    androidx.appcompat.widget.Toolbar toolbar;
+    Toolbar toolbar;
 
     private MyFridgeViewModel model;
 
@@ -68,23 +75,23 @@ public class MyFridgeActivity extends AppCompatActivity implements OnMyFridgeIte
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                supportFinishAfterTransition();
+                supportFinishAfterTransition();;
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-//    @Override
-//    public void onMoreClickedListener(ImageView photo, Beer item) {
-//        Intent intent = new Intent(this, DetailsActivity.class);
-//        intent.putExtra(DetailsActivity.ITEM_ID, item.getId());
-//        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, photo, "image");
-//        startActivity(intent, options.toBundle());
-//    }
-//
-//    @Override
-//    public void onWishClickedListener(Beer item) {
-//        model.toggleItemInWishlist(item.getId());
-//    }
+    @Override
+    public void onMoreClickedListener(ImageView photo, Beer item) {
+        Intent intent = new Intent(this, DetailsActivity.class);
+        intent.putExtra(DetailsActivity.ITEM_ID, item.getId());
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, photo, "image");
+        startActivity(intent, options.toBundle());
+    }
+
+    @Override
+    public void onWishClickedListener(Beer item) {
+        model.toggleItemInWishlist(item.getId());
+    }
 }

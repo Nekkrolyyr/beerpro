@@ -40,6 +40,7 @@ dependencies {
 
     // an alternative to picasso
     implementation 'com.github.bumptech.glide:glide:4.8.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0-alpha1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
     implementation("com.github.bumptech.glide:recyclerview-integration:4.8.0") {
         // Excludes the support library because it's already included by Glide.

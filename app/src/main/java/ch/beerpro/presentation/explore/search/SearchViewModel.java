@@ -57,9 +57,10 @@ public class SearchViewModel extends ViewModel implements CurrentUser {
         }
         ArrayList<Beer> filtered = new ArrayList<>();
         for (Beer beer : allBeers) {
-            if (beer.getName()!=null&&beer.getName().toLowerCase().contains(searchTerm1.toLowerCase())) {
+            if ((beer.getName()!=null&&beer.getName().toLowerCase().contains(searchTerm1.toLowerCase()))||(
+                    beer.getCategory()!=null&&beer.getCategory().toLowerCase().contains(searchTerm1.toLowerCase()))||(
+                    beer.getManufacturer()!=null&&beer.getManufacturer().toLowerCase().contains(searchTerm1.toLowerCase()))) {
                 filtered.add(beer);
-
             }
         }
         return filtered;

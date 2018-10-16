@@ -4,6 +4,7 @@ import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -31,6 +32,7 @@ public class SearchActivity extends AppCompatActivity
     private EditText searchEditText;
     private MyBeersViewModel myBeersViewModel;
     private TabLayout tabLayout;
+    private String presetSearchTerm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +62,21 @@ public class SearchActivity extends AppCompatActivity
         viewPager.setSaveFromParentEnabled(false);
         searchViewModel = ViewModelProviders.of(this).get(SearchViewModel.class);
         myBeersViewModel = ViewModelProviders.of(this).get(MyBeersViewModel.class);
+
+        Intent lastIntent = getIntent();
+        if(lastIntent.hasExtra("CATEGORY")){
+            presetSearchTerm = getIntent().getStringExtra("CATEGORY");
+            searchEditText.setText(presetSearchTerm);
+            searchEditText.onEditorAction(EditorInfo.IME_ACTION_SEARCH);
+            findViewById(R.id.rl_searchBarHolder).setFocusableInTouchMode(true); // don't focus SearchBar
+        }else if(lastIntent.hasExtra("MANUFACTURER")){
+            presetSearchTerm = getIntent().getStringExtra("MANUFACTURER");
+            searchEditText.setText(presetSearchTerm);
+            searchEditText.onEditorAction(EditorInfo.IME_ACTION_SEARCH);
+            findViewById(R.id.rl_searchBarHolder).setFocusableInTouchMode(true); // don't focus SearchBar
+        }
     }
+
 
     private void handleSearch(String text) {
         searchViewModel.setSearchTerm(text);

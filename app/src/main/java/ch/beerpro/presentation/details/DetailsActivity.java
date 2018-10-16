@@ -4,8 +4,10 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -23,8 +25,10 @@ import butterknife.OnClick;
 import ch.beerpro.GlideApp;
 import ch.beerpro.R;
 import ch.beerpro.domain.models.Beer;
+import ch.beerpro.domain.models.Notice;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
+import ch.beerpro.presentation.details.createrating.CreateNoticeActivity;
 import ch.beerpro.presentation.details.createrating.CreateRatingActivity;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -75,7 +79,12 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
 
+    @BindView(R.id.recyclerView2)
+    RecyclerView recyclerView2;
+
     private RatingsRecyclerViewAdapter adapter;
+    private NoticeRecyclerViewAdapter adapter2;
+
 
     private DetailsViewModel model;
 
@@ -102,11 +111,20 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
         adapter = new RatingsRecyclerViewAdapter(this, model.getCurrentUser());
         recyclerView.addItemDecoration(new DividerItemDecoration(this, layoutManager.getOrientation()));
 
+        LinearLayoutManager layoutManager2 = new LinearLayoutManager(this);
+        recyclerView2.setLayoutManager(layoutManager2);
+
+        adapter2 = new NoticeRecyclerViewAdapter(model.getCurrentUser());
+        recyclerView2.addItemDecoration(new DividerItemDecoration(this, layoutManager2.getOrientation()));
+
         model.getBeer().observe(this, this::updateBeer);
         model.getRatings().observe(this, this::updateRatings);
+        model.getNotices().observe(this,this::updateNotices);
         model.getWish().observe(this, this::toggleWishlistView);
 
         recyclerView.setAdapter(adapter);
+        recyclerView2.setAdapter(adapter2);
+
         addRatingBar.setOnRatingBarChangeListener(this::addNewRating);
     }
 
@@ -121,6 +139,11 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
     @OnClick(R.id.actionsButton)
     public void showBottomSheetDialog() {
         View view = getLayoutInflater().inflate(R.layout.single_bottom_sheet_dialog, null);
+        view.findViewById(R.id.addPrivateNote).setOnClickListener( v -> {
+            Intent intent = new Intent(this, CreateNoticeActivity.class);
+            intent.putExtra(CreateNoticeActivity.ITEM, model.getBeer().getValue());
+            startActivity(intent);
+        });
         BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(view);
         dialog.show();
@@ -142,6 +165,9 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
 
     private void updateRatings(List<Rating> ratings) {
         adapter.submitList(new ArrayList<>(ratings));
+    }
+    private void updateNotices(List<Notice> notices) {
+        adapter2.submitList(new ArrayList<>(notices));
     }
 
     @Override

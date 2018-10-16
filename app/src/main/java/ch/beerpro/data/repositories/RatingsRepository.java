@@ -2,6 +2,7 @@ package ch.beerpro.data.repositories;
 
 import android.util.Pair;
 import androidx.lifecycle.LiveData;
+import ch.beerpro.domain.models.Notice;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 import ch.beerpro.domain.utils.FirestoreQueryLiveDataArray;
@@ -33,6 +34,12 @@ public class RatingsRepository {
         return new FirestoreQueryLiveDataArray<>(FirebaseFirestore.getInstance().collection(Rating.COLLECTION)
                 .orderBy(Rating.FIELD_CREATION_DATE, Query.Direction.DESCENDING)
                 .whereEqualTo(Rating.FIELD_BEER_ID, beerId), Rating.class);
+    }
+
+    public static LiveData<List<Notice>> getNoticesByBeer(String beerId,String userId) {
+        return new FirestoreQueryLiveDataArray<>(FirebaseFirestore.getInstance().collection(Notice.COLLECTION)
+                .orderBy(Rating.FIELD_CREATION_DATE, Query.Direction.DESCENDING)
+                .whereEqualTo(Rating.FIELD_BEER_ID, beerId).whereEqualTo(Rating.FIELD_USER_ID, userId), Notice.class);
     }
 
     public LiveData<List<Pair<Rating, Wish>>> getAllRatingsWithWishes(LiveData<List<Wish>> myWishlist) {

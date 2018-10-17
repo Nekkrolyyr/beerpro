@@ -45,7 +45,7 @@ public class CreateNoticeViewModel extends ViewModel {
                 comment, new Date());
         Log.i(TAG, "Adding new rating: " + newNotice.toString());
 
-        Task<Notice> noticeTask = FirebaseFirestore.getInstance().collection("notices").add(newNotice).continueWithTask(task -> {
+        Task<Notice> noticeTask = FirebaseFirestore.getInstance().collection(Notice.COLLECTION).add(newNotice).continueWithTask(task -> {
             if (task.isSuccessful()) {
                 return task.getResult().get();
             } else {

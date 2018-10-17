@@ -34,7 +34,7 @@ public class DetailsViewModel extends ViewModel implements CurrentUser {
         beer = beersRepository.getBeer(beerId);
         wish = wishlistRepository.getMyWishForBeer(currentUserId, getBeer());
         ratings = ratingsRepository.getRatingsForBeer(beerId);
-        notices = ratingsRepository.getNoticesByBeer(beerId.getValue(),currentUserId.getValue());
+        notices = ratingsRepository.getNoticesForBeer(beerId);
         currentUserId.setValue(getCurrentUser().getUid());
     }
 

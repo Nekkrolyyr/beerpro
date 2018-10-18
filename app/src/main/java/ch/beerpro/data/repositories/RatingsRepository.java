@@ -1,10 +1,14 @@
 package ch.beerpro.data.repositories;
 
+import android.util.Log;
 import android.util.Pair;
 import androidx.lifecycle.LiveData;
+import ch.beerpro.domain.models.Notice;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 import ch.beerpro.domain.utils.FirestoreQueryLiveDataArray;
+
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -35,6 +39,12 @@ public class RatingsRepository {
                 .whereEqualTo(Rating.FIELD_BEER_ID, beerId), Rating.class);
     }
 
+    public static LiveData<List<Notice>> getNoticesByBeer(String beerId) {
+        return new FirestoreQueryLiveDataArray<>(FirebaseFirestore.getInstance().collection(Notice.COLLECTION)
+                .orderBy(Rating.FIELD_CREATION_DATE, Query.Direction.DESCENDING)
+                .whereEqualTo(Rating.FIELD_BEER_ID, beerId).whereEqualTo(Rating.FIELD_USER_ID, FirebaseAuth.getInstance().getCurrentUser().getUid()), Notice.class);
+    }
+
     public LiveData<List<Pair<Rating, Wish>>> getAllRatingsWithWishes(LiveData<List<Wish>> myWishlist) {
         return map(combineLatest(getAllRatings(), map(myWishlist, entries -> {
             HashMap<String, Wish> byId = new HashMap<>();
@@ -61,6 +71,9 @@ public class RatingsRepository {
 
     public LiveData<List<Rating>> getRatingsForBeer(LiveData<String> beerId) {
         return switchMap(beerId, RatingsRepository::getRatingsByBeer);
+    }
+    public LiveData<List<Notice>> getNoticesForBeer(LiveData<String> beerId) {
+        return switchMap(beerId, RatingsRepository::getNoticesByBeer);
     }
 
     public LiveData<List<Pair<Rating, Wish>>> getMyRatingsWithWishes(LiveData<String> currentUserId,

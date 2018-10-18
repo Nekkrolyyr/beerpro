@@ -4,7 +4,6 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +11,13 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.widget.NestedScrollView;
@@ -25,24 +31,25 @@ import butterknife.OnClick;
 import ch.beerpro.GlideApp;
 import ch.beerpro.R;
 import ch.beerpro.domain.models.Beer;
+import ch.beerpro.domain.models.FridgeBeer;
 import ch.beerpro.domain.models.Notice;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 import ch.beerpro.presentation.details.createrating.CreateNoticeActivity;
 import ch.beerpro.presentation.details.createrating.CreateRatingActivity;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
+import ch.beerpro.presentation.utils.EntityClassSnapshotParser;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import static ch.beerpro.R.id.addToFridge;
 import static ch.beerpro.presentation.utils.DrawableHelpers.setDrawableTint;
 
 public class DetailsActivity extends AppCompatActivity implements OnRatingLikedListener {
 
+
+    private EntityClassSnapshotParser<FridgeBeer> parser = new EntityClassSnapshotParser<>(FridgeBeer.class);
     public static final String ITEM_ID = "item_id";
     private static final String TAG = "DetailsActivity";
+    private static String beerId;
+
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
@@ -66,6 +73,9 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
 
     @BindView(R.id.wishlist)
     ToggleButton wishlist;
+
+    @BindView(R.id.addToFridge)
+    Button addToFridge;
 
     @BindView(R.id.manufacturer)
     TextView manufacturer;
@@ -100,7 +110,7 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
                 .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         toolbar.setTitleTextColor(Color.alpha(0));
 
-        String beerId = getIntent().getExtras().getString(ITEM_ID);
+        beerId = getIntent().getExtras().getString(ITEM_ID);
 
         model = ViewModelProviders.of(this).get(DetailsViewModel.class);
         model.setBeerId(beerId);
@@ -144,6 +154,11 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
             intent.putExtra(CreateNoticeActivity.ITEM, model.getBeer().getValue());
             startActivity(intent);
         });
+
+        view.findViewById(R.id.addToFridge).setOnClickListener( v -> {
+
+        });
+
         BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(view);
         dialog.show();
@@ -175,6 +190,10 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
         model.toggleLike(rating);
     }
 
+    @OnClick(R.id.addToFridge)
+    public void onAddToFridgeClickedListener(View view) {
+        model.toggleItemInFridge(model.getBeer().getValue().getId());
+    }
     @OnClick(R.id.wishlist)
     public void onWishClickedListener(View view) {
         model.toggleItemInWishlist(model.getBeer().getValue().getId());

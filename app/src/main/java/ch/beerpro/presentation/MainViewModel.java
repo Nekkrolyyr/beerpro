@@ -2,15 +2,20 @@ package ch.beerpro.presentation;
 
 import android.util.Pair;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import ch.beerpro.data.repositories.*;
 import ch.beerpro.domain.models.Beer;
 import ch.beerpro.domain.models.MyBeer;
+import ch.beerpro.domain.models.Notice;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 import com.google.android.gms.tasks.Task;
+import static androidx.lifecycle.Transformations.map;
 
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,6 +32,7 @@ public class MainViewModel extends ViewModel implements CurrentUser {
 
     private final LiveData<List<Wish>> myWishlist;
     private final LiveData<List<Rating>> myRatings;
+    private final LiveData<List<Notice>> myNotices;
     private final LiveData<List<MyBeer>> myBeers;
 
     public MainViewModel() {
@@ -44,7 +50,26 @@ public class MainViewModel extends ViewModel implements CurrentUser {
         MutableLiveData<String> currentUserId = new MutableLiveData<>();
         myWishlist = wishlistRepository.getMyWishlist(currentUserId);
         myRatings = ratingsRepository.getMyRatings(currentUserId);
-        myBeers = myBeersRepository.getMyBeers(allBeers, myWishlist, myRatings);
+        myNotices = ratingsRepository.getMyNotices(currentUserId);
+
+        LiveData<List<Rating>> newRatings = map(myNotices, myNotices -> {
+            List<Rating> ratings = new ArrayList<>();
+            for(Notice n : myNotices){
+                Rating r = new Rating();
+                r.setBeerId(n.getBeerId());
+                r.setBeerName(n.getBeerName());
+                r.setCreationDate(n.getCreationDate());
+                r.setUserId(n.getUserId());
+                ratings.add(r);
+            }
+            return ratings;
+        });
+
+        MediatorLiveData mergedRatings = new MediatorLiveData();
+        mergedRatings.addSource(myRatings , value -> {mergedRatings.setValue(value);});
+        mergedRatings.addSource(newRatings , value -> {mergedRatings.setValue(value);});
+
+        myBeers = myBeersRepository.getMyBeers(allBeers, myWishlist, mergedRatings);
 
         /*
          * Set the current user id, which is used as input for the getMyWishlist and getMyRatings calls above.

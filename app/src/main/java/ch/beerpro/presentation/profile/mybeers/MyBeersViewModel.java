@@ -2,10 +2,12 @@ package ch.beerpro.presentation.profile.mybeers;
 
 import android.util.Pair;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import ch.beerpro.data.repositories.*;
 import ch.beerpro.domain.models.Beer;
+import ch.beerpro.domain.models.Notice;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 import ch.beerpro.domain.models.MyBeer;
@@ -37,8 +39,27 @@ public class MyBeersViewModel extends ViewModel implements CurrentUser {
         MutableLiveData<String> currentUserId = new MutableLiveData<>();
         LiveData<List<Wish>> myWishlist = wishlistRepository.getMyWishlist(currentUserId);
         LiveData<List<Rating>> myRatings = ratingsRepository.getMyRatings(currentUserId);
+        LiveData<List<Notice>> myNotices = ratingsRepository.getMyNotices(currentUserId);
 
-        LiveData<List<MyBeer>> myBeers = myBeersRepository.getMyBeers(allBeers, myWishlist, myRatings);
+        LiveData<List<Rating>> newRatings = map(myNotices, lmyNotices -> {
+            List<Rating> ratings = new ArrayList<>();
+            for(Notice n : lmyNotices){
+                Rating r = new Rating();
+                r.setBeerId(n.getBeerId());
+                r.setBeerName(n.getBeerName());
+                r.setCreationDate(n.getCreationDate());
+                r.setUserId(n.getUserId());
+                ratings.add(r);
+            }
+            return ratings;
+        });
+
+        MediatorLiveData mergedRatings = new MediatorLiveData();
+        mergedRatings.addSource(myRatings , value -> {mergedRatings.setValue(value);});
+        mergedRatings.addSource(newRatings , value -> {mergedRatings.setValue(value);});
+
+
+        LiveData<List<MyBeer>> myBeers = myBeersRepository.getMyBeers(allBeers, myWishlist, mergedRatings);
 
         myFilteredBeers = map(zip(searchTerm, myBeers), MyBeersViewModel::filter);
 

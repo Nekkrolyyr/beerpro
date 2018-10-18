@@ -138,13 +138,14 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
 
     @OnClick(R.id.actionsButton)
     public void showBottomSheetDialog() {
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
         View view = getLayoutInflater().inflate(R.layout.single_bottom_sheet_dialog, null);
         view.findViewById(R.id.addPrivateNote).setOnClickListener( v -> {
+            dialog.dismiss();
             Intent intent = new Intent(this, CreateNoticeActivity.class);
             intent.putExtra(CreateNoticeActivity.ITEM, model.getBeer().getValue());
             startActivity(intent);
         });
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
         dialog.setContentView(view);
         dialog.show();
     }

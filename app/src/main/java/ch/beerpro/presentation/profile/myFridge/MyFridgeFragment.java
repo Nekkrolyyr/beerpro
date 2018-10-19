@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import ch.beerpro.R;
+import ch.beerpro.domain.models.Beer;
+import ch.beerpro.domain.models.FridgeBeer;
 import ch.beerpro.domain.models.MyBeer;
 import ch.beerpro.data.repositories.CurrentUser;
 
@@ -32,7 +34,8 @@ public class MyFridgeFragment extends Fragment {
 
     @BindView(R.id.emptyView)
     View emptyView;
-
+    List<FridgeBeer> fridgeBeers = new ArrayList<>();
+    ArrayList<Beer> allBeers = new ArrayList<>();
     public MyFridgeFragment() {
     }
 
@@ -45,7 +48,8 @@ public class MyFridgeFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
 
         MyFridgeViewModel model = ViewModelProviders.of(getActivity()).get(MyFridgeViewModel.class);
-        model.getMyFilteredBeers().observe(getActivity(), this::handleBeersChanged);
+        model.getMyFridgeBeers().observe(getActivity(), this::handleFridgeBeersChanged);
+        model.getMyBeers().observe(getActivity(),this::handleBeersChanged);
 
         adapter = new MyFridgeRecyclerViewAdapter(interactionListener, model.getCurrentUser());
 
@@ -53,15 +57,28 @@ public class MyFridgeFragment extends Fragment {
         return view;
     }
 
-    private void handleBeersChanged(List<MyBeer> beers) {
-        adapter.submitList(new ArrayList<>(beers));
-        if (beers.isEmpty()) {
+    private void handleBeersChanged(List<Beer> beers) {
+        allBeers = new ArrayList<>(beers);
+        ArrayList<Beer> filteredBeers = new ArrayList<>();
+        for(FridgeBeer fb : fridgeBeers){
+            for(Beer b: allBeers){
+                if(fb.getBeerId().equals(b.getId())){
+                    filteredBeers.add(b);
+                    break;
+                }
+            }
+        }
+        adapter.submitList(filteredBeers);
+        if (filteredBeers.isEmpty()) {
             emptyView.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
             emptyView.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         }
+    }
+    private void handleFridgeBeersChanged(List<FridgeBeer> beers) {
+        fridgeBeers = new ArrayList<>(beers);
     }
 
     @Override

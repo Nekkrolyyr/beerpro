@@ -27,21 +27,21 @@ import ch.beerpro.domain.models.MyBeerFromRating;
 import ch.beerpro.domain.models.MyBeerFromWishlist;
 import ch.beerpro.presentation.utils.DrawableHelpers;
 
-public class MyFridgeRecyclerViewAdapter extends ListAdapter<MyBeer, MyFridgeRecyclerViewAdapter.ViewHolder> {
+public class MyFridgeRecyclerViewAdapter extends ListAdapter<Beer, MyFridgeRecyclerViewAdapter.ViewHolder> {
 
     private final OnMyFridgeItemInteractionListener listener;
     private FirebaseUser user;
 
     private static final String TAG = "MyFridgeRecyclerViewAdap";
 
-    private static final DiffUtil.ItemCallback<MyBeer> DIFF_CALLBACK = new DiffUtil.ItemCallback<MyBeer>() {
+    private static final DiffUtil.ItemCallback<Beer> DIFF_CALLBACK = new DiffUtil.ItemCallback<Beer>() {
         @Override
-        public boolean areItemsTheSame(@NonNull MyBeer oldItem, @NonNull MyBeer newItem) {
-            return oldItem.getBeerId().equals(newItem.getBeerId());
+        public boolean areItemsTheSame(@NonNull Beer oldItem, @NonNull Beer newItem) {
+            return oldItem.getId().equals(newItem.getId());
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull MyBeer oldItem, @NonNull MyBeer newItem) {
+        public boolean areContentsTheSame(@NonNull Beer oldItem, @NonNull Beer newItem) {
             return oldItem.equals(newItem);
         }
     };
@@ -62,7 +62,7 @@ public class MyFridgeRecyclerViewAdapter extends ListAdapter<MyBeer, MyFridgeRec
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        MyBeer entry = getItem(position);
+        Beer entry = getItem(position);
         holder.bind(entry, listener);
     }
 
@@ -100,9 +100,9 @@ public class MyFridgeRecyclerViewAdapter extends ListAdapter<MyBeer, MyFridgeRec
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(MyBeer entry, OnMyFridgeItemInteractionListener listener) {
+        public void bind(Beer entry, OnMyFridgeItemInteractionListener listener) {
 
-            Beer item = entry.getBeer();
+            Beer item = entry;
 
             name.setText(item.getName());
             manufacturer.setText(item.getManufacturer());
@@ -115,18 +115,10 @@ public class MyFridgeRecyclerViewAdapter extends ListAdapter<MyBeer, MyFridgeRec
             itemView.setOnClickListener(v -> listener.onMoreClickedListener(photo, item));
             removeFromWishlist.setOnClickListener(v -> listener.onWishClickedListener(item));
 
-            String formattedDate =
+            /*String formattedDate =
                     DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT).format(entry.getDate());
-            addedAt.setText(formattedDate);
+            addedAt.setText(formattedDate);*/
 
-            if (entry instanceof MyBeerFromWishlist) {
-                DrawableHelpers.setDrawableTint(removeFromWishlist, itemView.getResources().getColor(R.color.colorPrimary));
-                onTheListSince.setText("auf der Wunschliste seit");
-            } else if (entry instanceof MyBeerFromRating) {
-                DrawableHelpers.setDrawableTint(removeFromWishlist, itemView.getResources().getColor(android.R.color.darker_gray));
-                removeFromWishlist.setText("Wunschliste");
-                onTheListSince.setText("beurteilt am");
-            }
         }
     }
 }

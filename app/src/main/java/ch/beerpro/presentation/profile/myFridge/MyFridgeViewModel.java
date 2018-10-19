@@ -17,12 +17,12 @@ import ch.beerpro.data.repositories.MyFridgeRepository;
 import ch.beerpro.data.repositories.RatingsRepository;
 import ch.beerpro.data.repositories.WishlistRepository;
 import ch.beerpro.domain.models.Beer;
+import ch.beerpro.domain.models.FridgeBeer;
 import ch.beerpro.domain.models.MyBeer;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 
 import static androidx.lifecycle.Transformations.map;
-import static ch.beerpro.domain.utils.LiveDataExtensions.zip;
 
 public class MyFridgeViewModel extends ViewModel implements CurrentUser {
     
@@ -30,47 +30,48 @@ public class MyFridgeViewModel extends ViewModel implements CurrentUser {
     private final MutableLiveData<String> searchTerm = new MutableLiveData<>();
 
     private final WishlistRepository wishlistRepository;
-    private final LiveData<List<MyBeer>> myFilteredBeers;
+    //private final LiveData<List<Beer>> myFilteredBeers;
+    LiveData<List<FridgeBeer>> fridgeBeers;
+    LiveData<List<Beer>> allBeers;
 
     public MyFridgeViewModel() {
 
         wishlistRepository = new WishlistRepository();
         BeersRepository beersRepository = new BeersRepository();
         MyFridgeRepository myFridgeRepository = new MyFridgeRepository();
-        RatingsRepository ratingsRepository = new RatingsRepository();
 
-        LiveData<List<Beer>> allBeers = beersRepository.getAllBeers();
+        allBeers = beersRepository.getAllBeers();
         MutableLiveData<String> currentUserId = new MutableLiveData<>();
-        LiveData<List<Wish>> myWishlist = wishlistRepository.getMyWishlist(currentUserId);
-        LiveData<List<Rating>> myRatings = ratingsRepository.getMyRatings(currentUserId);
+        fridgeBeers = myFridgeRepository.getMyFridge(currentUserId);
+        
+        /*
+        myFilteredBeers = map(allBeers,listBeers ->{
+            LiveData<List<Beer>> outputBeers = map(fridgeBeers,listFridge->{
+                List<Beer> filteredBeers = new ArrayList<>();
+                    for(FridgeBeer fb : listFridge){
+                        for(Beer b : listBeers){
+                            if(fb.getBeerId().equals(b.getId())){
+                                filteredBeers.add(b);
+                                break;
+                            }
+                        }
+                    }
+                return filteredBeers;
+            });
 
-        LiveData<List<MyBeer>> fridgeBeers = myFridgeRepository.getMyFridgeBeers(allBeers, myWishlist, myRatings);
-
-        myFilteredBeers = map(zip(searchTerm, fridgeBeers), MyFridgeViewModel::filter);
-
+            return outputBeers.getValue();
+        });
+*/
     }
 
-
-    private static List<MyBeer> filter(Pair<String, List<MyBeer>> input) {
-        String searchTerm1 = input.first;
-        List<MyBeer> myBeers = input.second;
-        if (Strings.isNullOrEmpty(searchTerm1)) {
-            return myBeers;
-        }
-        if (myBeers == null) {
-            return Collections.emptyList();
-        }
-        ArrayList<MyBeer> filtered = new ArrayList<>();
-        for (MyBeer beer : myBeers) {
-            if (beer.getBeer().getName().toLowerCase().contains(searchTerm1.toLowerCase())) {
-                filtered.add(beer);
-            }
-        }
-        return filtered;
-    }
-
-    public LiveData<List<MyBeer>> getMyFilteredBeers() {
+    /*public LiveData<List<Beer>> getMyFilteredBeers() {
         return myFilteredBeers;
+    }*/
+    public LiveData<List<Beer>> getMyBeers() {
+        return allBeers;
+    }
+    public LiveData<List<FridgeBeer>> getMyFridgeBeers() {
+        return fridgeBeers;
     }
     public void toggleItemInWishlist(String beerId) {
         wishlistRepository.toggleUserWishlistItem(getCurrentUser().getUid(), beerId);

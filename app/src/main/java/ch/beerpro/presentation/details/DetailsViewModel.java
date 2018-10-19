@@ -65,7 +65,4 @@ public class DetailsViewModel extends ViewModel implements CurrentUser {
     public Task<Void> toggleItemInWishlist(String itemId) {
         return wishlistRepository.toggleUserWishlistItem(getCurrentUser().getUid(), itemId);
     }
-    public Task<Void> toggleItemInFridge(String itemId) {
-        return fridgeRepository.toggleUserFridgeItem(getCurrentUser().getUid(), itemId);
-    }
 }

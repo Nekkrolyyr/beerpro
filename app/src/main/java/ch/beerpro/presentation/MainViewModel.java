@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import ch.beerpro.data.repositories.*;
 import ch.beerpro.domain.models.Beer;
+import ch.beerpro.domain.models.FridgeBeer;
 import ch.beerpro.domain.models.MyBeer;
 import ch.beerpro.domain.models.Notice;
 import ch.beerpro.domain.models.Rating;
@@ -29,11 +30,13 @@ public class MainViewModel extends ViewModel implements CurrentUser {
     private final LikesRepository likesRepository;
     private final RatingsRepository ratingsRepository;
     private final WishlistRepository wishlistRepository;
+    private final MyFridgeRepository fridgeRepository;
 
     private final LiveData<List<Wish>> myWishlist;
     private final LiveData<List<Rating>> myRatings;
     private final LiveData<List<Notice>> myNotices;
     private final LiveData<List<MyBeer>> myBeers;
+    private final LiveData<List<FridgeBeer>> myFridge;
 
     public MainViewModel() {
         /*
@@ -43,6 +46,7 @@ public class MainViewModel extends ViewModel implements CurrentUser {
         likesRepository = new LikesRepository();
         wishlistRepository = new WishlistRepository();
         ratingsRepository = new RatingsRepository();
+        fridgeRepository = new MyFridgeRepository();
         MyBeersRepository myBeersRepository = new MyBeersRepository();
 
         LiveData<List<Beer>> allBeers = beersRepository.getAllBeers();
@@ -51,6 +55,7 @@ public class MainViewModel extends ViewModel implements CurrentUser {
         myWishlist = wishlistRepository.getMyWishlist(currentUserId);
         myRatings = ratingsRepository.getMyRatings(currentUserId);
         myNotices = ratingsRepository.getMyNotices(currentUserId);
+        myFridge = fridgeRepository.getMyFridge(currentUserId);
 
         LiveData<List<Rating>> newRatings = map(myNotices, myNotices -> {
             List<Rating> ratings = new ArrayList<>();
@@ -111,5 +116,9 @@ public class MainViewModel extends ViewModel implements CurrentUser {
 
     public LiveData<List<Pair<Rating, Wish>>> getAllRatingsWithWishes() {
         return ratingsRepository.getAllRatingsWithWishes(myWishlist);
+    }
+
+    public LiveData<List<FridgeBeer>> getMyFridge() {
+        return myFridge;
     }
 }

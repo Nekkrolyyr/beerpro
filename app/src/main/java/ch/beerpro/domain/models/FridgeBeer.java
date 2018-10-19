@@ -3,6 +3,7 @@ package ch.beerpro.domain.models;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import lombok.Data;
@@ -13,8 +14,7 @@ import lombok.RequiredArgsConstructor;
 @IgnoreExtraProperties
 @Data
 @NoArgsConstructor
-@RequiredArgsConstructor
-public class FridgeBeer implements Entity {
+public class FridgeBeer implements Entity , Serializable {
 
     public static final String COLLECTION = "fridge";
     public static final String FIELD_ID = "id";
@@ -27,14 +27,8 @@ public class FridgeBeer implements Entity {
      */
     @Exclude
     private String id;
-    @NonNull
     private String userId;
-    @NonNull
     private String beerId;
-    @NonNull
     private Date addedAt;
 
-    public static String generateId(String userId, String beerId) {
-        return String.format("%s_%s", userId, beerId);
-    }
 }

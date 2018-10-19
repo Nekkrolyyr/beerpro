@@ -25,22 +25,32 @@ import butterknife.OnClick;
 import ch.beerpro.GlideApp;
 import ch.beerpro.R;
 import ch.beerpro.domain.models.Beer;
+import ch.beerpro.domain.models.FridgeBeer;
 import ch.beerpro.domain.models.Notice;
 import ch.beerpro.domain.models.Rating;
 import ch.beerpro.domain.models.Wish;
 import ch.beerpro.presentation.details.createrating.CreateNoticeActivity;
 import ch.beerpro.presentation.details.createrating.CreateRatingActivity;
+import ch.beerpro.presentation.utils.EntityClassSnapshotParser;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static ch.beerpro.presentation.utils.DrawableHelpers.setDrawableTint;
 
 public class DetailsActivity extends AppCompatActivity implements OnRatingLikedListener {
 
+    private EntityClassSnapshotParser<FridgeBeer> parser = new EntityClassSnapshotParser<>(FridgeBeer.class);
     public static final String ITEM_ID = "item_id";
     private static final String TAG = "DetailsActivity";
     @BindView(R.id.toolbar)
@@ -138,13 +148,20 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
 
     @OnClick(R.id.actionsButton)
     public void showBottomSheetDialog() {
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
         View view = getLayoutInflater().inflate(R.layout.single_bottom_sheet_dialog, null);
         view.findViewById(R.id.addPrivateNote).setOnClickListener( v -> {
+            dialog.dismiss();
             Intent intent = new Intent(this, CreateNoticeActivity.class);
             intent.putExtra(CreateNoticeActivity.ITEM, model.getBeer().getValue());
             startActivity(intent);
         });
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        view.findViewById(R.id.addToFridge).setOnClickListener( v -> {
+            dialog.dismiss();
+            saveToFridge(model.getBeer().getValue())
+                    .addOnSuccessListener(task -> onBackPressed())
+                    .addOnFailureListener(error -> Log.e(TAG, "Could not add to fridge", error));
+        });
         dialog.setContentView(view);
         dialog.show();
     }
@@ -207,5 +224,33 @@ public class DetailsActivity extends AppCompatActivity implements OnRatingLikedL
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+    public Task<FridgeBeer> saveToFridge(Beer item) {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        assert user != null;
+
+        FridgeBeer newBeer = new FridgeBeer();
+        newBeer.setBeerId(item.getId());
+        newBeer.setUserId(model.getCurrentUser().getUid());
+        newBeer.setAddedAt(new Date());
+
+        Task<FridgeBeer> noticeTask = FirebaseFirestore.getInstance().collection(FridgeBeer.COLLECTION).add(newBeer).continueWithTask(task -> {
+            if (task.isSuccessful()) {
+                return task.getResult().get();
+            } else {
+                throw task.getException();
+            }
+        }).continueWithTask(task -> {
+
+            if (task.isSuccessful()) {
+                return Tasks.forResult(parser.parseSnapshot(task.getResult()));
+            } else {
+                throw task.getException();
+            }
+        });
+
+        return noticeTask;
+
     }
 }

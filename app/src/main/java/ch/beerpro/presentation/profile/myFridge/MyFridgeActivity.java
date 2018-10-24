@@ -57,33 +57,6 @@ public class MyFridgeActivity extends AppCompatActivity implements OnMyFridgeIte
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_my_fridge, menu);
-        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                model.setSearchTerm(query);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                model.setSearchTerm(null);
-                return false;
-            }
-        });
-
-        searchView.setOnCloseListener(() -> {
-            model.setSearchTerm(null);
-            return false;
-        });
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:

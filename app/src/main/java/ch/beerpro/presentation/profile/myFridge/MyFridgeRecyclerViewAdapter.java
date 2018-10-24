@@ -1,5 +1,6 @@
 package ch.beerpro.presentation.profile.myFridge;
 
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import butterknife.ButterKnife;
 import ch.beerpro.GlideApp;
 import ch.beerpro.R;
 import ch.beerpro.domain.models.Beer;
+import ch.beerpro.domain.models.FridgeBeer;
 import ch.beerpro.domain.models.MyBeer;
 import androidx.recyclerview.widget.RecyclerView;
 import butterknife.BindView;
@@ -27,21 +29,21 @@ import ch.beerpro.domain.models.MyBeerFromRating;
 import ch.beerpro.domain.models.MyBeerFromWishlist;
 import ch.beerpro.presentation.utils.DrawableHelpers;
 
-public class MyFridgeRecyclerViewAdapter extends ListAdapter<Beer, MyFridgeRecyclerViewAdapter.ViewHolder> {
+public class MyFridgeRecyclerViewAdapter extends ListAdapter<Pair<FridgeBeer,Beer>, MyFridgeRecyclerViewAdapter.ViewHolder> {
 
     private final OnMyFridgeItemInteractionListener listener;
     private FirebaseUser user;
 
     private static final String TAG = "MyFridgeRecyclerViewAdap";
 
-    private static final DiffUtil.ItemCallback<Beer> DIFF_CALLBACK = new DiffUtil.ItemCallback<Beer>() {
+    private static final DiffUtil.ItemCallback<Pair<FridgeBeer,Beer>> DIFF_CALLBACK = new DiffUtil.ItemCallback<Pair<FridgeBeer,Beer>>() {
         @Override
-        public boolean areItemsTheSame(@NonNull Beer oldItem, @NonNull Beer newItem) {
-            return oldItem.getId().equals(newItem.getId());
+        public boolean areItemsTheSame(@NonNull Pair<FridgeBeer,Beer> oldItem, @NonNull Pair<FridgeBeer,Beer> newItem) {
+            return oldItem.first.getId().equals(newItem.first.getId());
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Beer oldItem, @NonNull Beer newItem) {
+        public boolean areContentsTheSame(@NonNull Pair<FridgeBeer,Beer> oldItem, @NonNull Pair<FridgeBeer,Beer> newItem) {
             return oldItem.equals(newItem);
         }
     };
@@ -62,8 +64,8 @@ public class MyFridgeRecyclerViewAdapter extends ListAdapter<Beer, MyFridgeRecyc
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Beer entry = getItem(position);
-        holder.bind(entry, listener);
+        Pair<FridgeBeer,Beer> entry = getItem(position);
+        holder.bind(entry.first,entry.second, listener);
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -95,12 +97,13 @@ public class MyFridgeRecyclerViewAdapter extends ListAdapter<Beer, MyFridgeRecyc
         @BindView(R.id.removeFromWishlist)
         Button removeFromWishlist;
 
+
         ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(Beer entry, OnMyFridgeItemInteractionListener listener) {
+        public void bind(FridgeBeer fb,Beer entry, OnMyFridgeItemInteractionListener listener) {
 
             Beer item = entry;
 
@@ -113,11 +116,13 @@ public class MyFridgeRecyclerViewAdapter extends ListAdapter<Beer, MyFridgeRecyc
             ratingBar.setRating(item.getAvgRating());
             numRatings.setText(itemView.getResources().getString(R.string.fmt_num_ratings, item.getNumRatings()));
             itemView.setOnClickListener(v -> listener.onMoreClickedListener(photo, item));
-            removeFromWishlist.setOnClickListener(v -> listener.onWishClickedListener(item));
+            removeFromWishlist.setVisibility(View.GONE);
 
-            /*String formattedDate =
-                    DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT).format(entry.getDate());
-            addedAt.setText(formattedDate);*/
+            String formattedDate =
+                    DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.SHORT).format(fb.getAddedAt());
+            addedAt.setText(formattedDate);
+
+            onTheListSince.setText("im Kühlschrank seit");
 
         }
     }

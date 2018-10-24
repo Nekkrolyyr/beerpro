@@ -1,14 +1,17 @@
 package ch.beerpro.data.repositories;
 
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import ch.beerpro.domain.models.Beer;
+import ch.beerpro.domain.models.FridgeBeer;
 import ch.beerpro.domain.utils.FirestoreQueryLiveData;
 import ch.beerpro.domain.utils.FirestoreQueryLiveDataArray;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +30,7 @@ public class BeersRepository {
         String[] strings = filtered.toArray(new String[0]);
         return Arrays.asList(strings).subList(0, Math.min(8, strings.length));
     };
+
 
     private final static Function<List<Beer>, List<String>> mapBeersToManufacturers = (List<Beer> beers) -> {
         Set<String> filtered = new HashSet<>();
@@ -66,4 +70,19 @@ public class BeersRepository {
         return map(allBeers, mapBeersToManufacturers);
     }
 
+    public LiveData<List<Pair<FridgeBeer,Beer>>> getBeersbyIds(List<FridgeBeer> beerIds) {
+        return map(allBeers, beerList -> {
+            ArrayList<Pair<FridgeBeer,Beer>> filteredBeers = new ArrayList<>();
+            for(FridgeBeer fb : beerIds){
+                for(Beer b: beerList){
+                    if(fb.getBeerId().equals(b.getId())){
+                        Pair<FridgeBeer,Beer> item = new Pair<>(fb,b);
+                        filteredBeers.add(item);
+                        break;
+                    }
+                }
+            }
+            return filteredBeers;
+        });
+    }
 }

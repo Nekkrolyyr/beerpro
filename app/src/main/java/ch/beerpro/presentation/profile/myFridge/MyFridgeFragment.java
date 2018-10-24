@@ -2,9 +2,11 @@ package ch.beerpro.presentation.profile.myFridge;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +36,7 @@ public class MyFridgeFragment extends Fragment {
 
     @BindView(R.id.emptyView)
     View emptyView;
-    List<FridgeBeer> fridgeBeers = new ArrayList<>();
-    ArrayList<Beer> allBeers = new ArrayList<>();
+    MyFridgeViewModel model;
     public MyFridgeFragment() {
     }
 
@@ -47,9 +48,8 @@ public class MyFridgeFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(layoutManager);
 
-        MyFridgeViewModel model = ViewModelProviders.of(getActivity()).get(MyFridgeViewModel.class);
-        model.getMyFridgeBeers().observe(getActivity(), this::handleFridgeBeersChanged);
-        model.getMyBeers().observe(getActivity(),this::handleBeersChanged);
+        model = ViewModelProviders.of(this).get(MyFridgeViewModel.class);
+        model.getMyFridgeBeers().observe(this, this::handleFridgeBeersChanged);
 
         adapter = new MyFridgeRecyclerViewAdapter(interactionListener, model.getCurrentUser());
 
@@ -57,19 +57,9 @@ public class MyFridgeFragment extends Fragment {
         return view;
     }
 
-    private void handleBeersChanged(List<Beer> beers) {
-        allBeers = new ArrayList<>(beers);
-        ArrayList<Beer> filteredBeers = new ArrayList<>();
-        for(FridgeBeer fb : fridgeBeers){
-            for(Beer b: allBeers){
-                if(fb.getBeerId().equals(b.getId())){
-                    filteredBeers.add(b);
-                    break;
-                }
-            }
-        }
-        adapter.submitList(filteredBeers);
-        if (filteredBeers.isEmpty()) {
+    private void handleBeersChanged(List<Pair<FridgeBeer,Beer>> beers) {
+        adapter.submitList(beers);
+        if (beers.isEmpty()) {
             emptyView.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         } else {
@@ -78,7 +68,7 @@ public class MyFridgeFragment extends Fragment {
         }
     }
     private void handleFridgeBeersChanged(List<FridgeBeer> beers) {
-        fridgeBeers = new ArrayList<>(beers);
+        model.getFilteredBeers(beers).observe(this,this::handleBeersChanged);
     }
 
     @Override
